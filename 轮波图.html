@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>jquery封装轮波图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .wrapper {
+            width: 400px;
+            height: 250px;
+            border: 1px solid black;
+            margin: 100px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* .wrapper ul:hover .btn{
+        opacity: 0.7;
+        background: rgba(255,0,125.0.3)
+    } */
+
+        .wrapper ul {
+            position: absolute;
+            left: 0;
+            width: 2000px;
+            height: 100%;
+
+        }
+
+        .wrapper ul li {
+            width: 400px;
+            height: 100%;
+            float: left;
+        }
+
+        .wrapper ul li img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wrapper .btn {
+            width: 40px;
+            height: 40px;
+            font-size: 32px;
+            /* border: 1px solid black; */
+            text-align: center;
+            line-height: 40px;
+            position: absolute;
+            background: grey;
+            color: #fff;
+            opacity: 0.7;
+            cursor: pointer;
+            display: none;
+
+        }
+
+        .wrapper .leftBtn {
+            top: 50%;
+            left: 0;
+            margin-top: -20px;
+
+        }
+
+        .wrapper .rightBtn {
+            top: 50%;
+            right: 0px;
+            margin-top: -20px;
+        }
+
+        .wrapper .pointer {
+            width: 100%;
+            height: 30px;
+            position: absolute;
+            /* left: 50%; */
+            /* margin-top: -15px;
+        margin-left: -60px; */
+            bottom: 15px;
+            text-align: center;
+
+        }
+
+        .wrapper .pointer span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 6px;
+            background: #fff;
+            opacity: 0.7;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <ul>
+            <li>
+                <img src="1.jpg" alt="">
+            </li>
+            <li>
+                <img src="2.jpg" alt="">
+            </li>
+            <li>
+                <img src="3.jpg" alt="">
+            </li>
+            <li>
+                <img src="4.jpg" alt="">
+            </li>
+            <li>
+                <img src="1.jpg" alt="">
+            </li>
+        </ul>
+        <div class="btn leftBtn">&lt;</div>
+        <div class="btn rightBtn">&gt;</div>
+        <div class="pointer">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <script src="jquery-3.js"></script>
+    <script>
+        var moveWidth = $('.wrapper ul li ').width();
+        var nowIndex = $('.wrapper ul li ').index();
+        var picLength = $('.wrapper ul li').length - 1;
+        var timer = null;
+        var lock = false;
+        // console.log(picLengh)
+        function init() {
+            autoMove();
+            bindEvnet();
+            indexMove();
+        }
+        init()
+        function autoMove() {
+            timer = setInterval(function(){
+                move('next')
+            },2000)
+        }
+        function bindEvnet() {
+            $('.wrapper').hover(function () {
+                $('.wrapper .btn').fadeIn(500);
+                clearInterval(timer);
+            }, function () {
+                $('.wrapper .btn').hide();
+                autoMove();
+            })
+            $('.wrapper ').on('click', '.btn', function () {
+                if ($(this).hasClass('leftBtn')) {
+                    move('prev');
+
+                } else if ($(this).hasClass('rightBtn')) {
+                    move('next');
+
+                }
+            })
+            $('.wrapper .pointer').on('click','span',function(){
+               move($(this).index()) 
+            })
+        }
+        function move(dir) {
+            if(lock){
+                return false
+            }
+            lock = true;
+            if (dir == 'prev') {
+                if (nowIndex == 0) {
+                    nowIndex = picLength;
+                    $('.wrapper ul').css('left', - moveWidth * nowIndex)
+
+                }
+                nowIndex--;
+                $('.wrapper ul').animate({
+                    'left': -moveWidth * nowIndex
+                }, 1000, function () {
+                    //     autoMove()
+                    indexMove()
+                    lock = false;
+                })
+            } else if (dir == 'next') {
+                if (nowIndex == picLength) {
+                    nowIndex = 0;
+                    $('.wrapper ul').css('left', - moveWidth * nowIndex)
+                }
+                nowIndex++;
+                $('.wrapper ul').animate({
+                    'left': -nowIndex * moveWidth
+                },
+                    1000,
+                    function () {
+                        indexMove();
+                        lock = false;
+                    })
+            }else if(typeof dir == 'number'){
+                nowIndex = dir;
+                $('.wrapper ul').animate({
+                    'left': -nowIndex * moveWidth
+                },
+                    1000,
+                    function () {
+                        indexMove();
+                        lock = false;
+                    })
+            }
+        }
+        function indexMove() {
+            $('.wrapper > .pointer > span').css({ 'background': 'white' });
+            if(nowIndex == picLength){
+                $('.wrapper > .pointer > span').eq(0).css('background','#f40')
+            }else{
+                $('.wrapper > .pointer > span').eq(nowIndex).css('background','#f40')
+            }
+        }
+
+
+
+
+
+    </script>
+</body>
+
+</html>
